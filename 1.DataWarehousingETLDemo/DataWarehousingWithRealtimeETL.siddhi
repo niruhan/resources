@@ -1,0 +1,28 @@
+@App:name("DataWarehousingWithRealtimeETL")
+
+@App:description("This Siddhi app demonstrates a use case where an online entertainment company handles termination of a user relationship. GDPR requires that companies should not hold onto personal data of users after termination of relationship with user. However, certain critical data needs to be archived for future legal references for several years. This app demonstrates how this can be achieved using change-data-capture, and data cleaning and enrichment as a RealTime ETL Scenario")
+
+@source(type = 'cdc', url = 'jdbc:mysql://localhost:3306/production?useSSL=false', username = 'root', password = '', table.name = 'UnregisteredUserTable', operation = 'insert',
+	@map(type = 'keyvalue'))
+define stream unregisterUserStream (user_id long, username string, status string);
+
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/production?useSSL=false", username="root", password="", jdbc.driver.name="com.mysql.jdbc.Driver")
+@PrimaryKey("user_id")
+define table UserDataTable (user_id long, username string, reg_date string, package string, address string, mobile_number string);
+
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/production?useSSL=false", username="root", password="", jdbc.driver.name="com.mysql.jdbc.Driver")
+@PrimaryKey("user_id")
+define table ArchiveTable (user_id long, reg_date string, unreg_date string, package string);
+
+@sink(type = 'log')
+define stream logStream (user_id long, username string, status string);
+
+@info(name = 'Log Query')
+from unregisterUserStream
+select *
+insert into logStream;
+
+-- @info(name = 'Archive Query')
+-- from deleteUserDataStream
+-- select before_user_id as user_id, str:replaceFirst(str:replaceFirst(before_reg_date, 'T', ' '), 'Z', '') as reg_date, time:currentTimestamp() as unreg_date, before_package as package
+-- insert into ArchiveTable;
