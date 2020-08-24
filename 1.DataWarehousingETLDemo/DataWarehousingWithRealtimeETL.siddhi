@@ -1,4 +1,5 @@
 @App:name("DataWarehousingWithRealtimeETL")
+@App:statistics(reporter = 'prometheus')
 
 @App:description("This Siddhi app demonstrates a use case where an online entertainment company handles termination of a user relationship. GDPR requires that companies should not hold onto personal data of users after termination of relationship with user. However, certain critical data needs to be archived for future legal references for several years. This app demonstrates how this can be achieved using change-data-capture, and data cleaning and enrichment as a RealTime ETL Scenario")
 

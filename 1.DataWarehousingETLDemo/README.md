@@ -103,6 +103,8 @@ If the user with user_id 001 cancels his subscription, we can delete the first r
 
 ![alt_text](images/image1.png "image_tooltip")
 
+![Demo setup](images/demo.png "Demo Setup")
+
 
 
 <table>
