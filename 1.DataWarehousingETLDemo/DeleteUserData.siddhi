@@ -1,0 +1,18 @@
+@App:name("DeleteUserData")
+
+-- @App:statistics(reporter = 'prometheus')
+
+@App:description("This Siddhi app demonstrates how data warehousing can be done with real time ETL using SI")
+
+@source(type = 'cdc', url = 'jdbc:mysql://localhost:3306/production?useSSL=false', username = 'root', password = '', table.name = 'UnregisteredUserTable', operation = 'insert',
+	@map(type = 'keyvalue'))
+define stream unregisterUserStream (user_id long, status string);
+
+@Store(type="rdbms", jdbc.url="jdbc:mysql://localhost:3306/production?useSSL=false", username="root", password="", jdbc.driver.name="com.mysql.jdbc.Driver")
+@PrimaryKey("user_id")
+define table UserDataTable (user_id long, username string, reg_date string, package string, address string, mobile_number string);
+
+@info(name='Delete User Data Query') 
+from unregisterUserStream
+delete UserDataTable
+    on UserDataTable.user_id == user_id;

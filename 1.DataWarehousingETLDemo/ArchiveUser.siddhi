@@ -1,0 +1,15 @@
+@App:name('ArchiveUser')
+@App:description('Description of the plan')
+
+
+@source(type='cdc',url = "jdbc:mysql://localhost:3306/production?useSSL=false",username = "root",password = "",table.name = "UserDataTable",operation = "delete",
+	@map(type='keyvalue'))
+define stream deleteUserStream (before_user_id long, before_username string, before_reg_date string, before_package string, before_address string, before_mobile_number string);
+
+@store(type='rdbms',jdbc.url = "jdbc:mysql://localhost:3306/production?useSSL=false",username = "root",password = "",jdbc.driver.name = "com.mysql.jdbc.Driver")
+define table ArchiveTable (user_id long,reg_date string,unreg_date string,package string);
+
+@info(name='query1')
+from deleteUserStream 
+select before_user_id as user_id, str:replaceFirst(str:replaceFirst(before_reg_date, 'T', ' '), 'Z', '') as reg_date, time:currentTimestamp() as unreg_date, before_package as package
+insert into ArchiveTable;
